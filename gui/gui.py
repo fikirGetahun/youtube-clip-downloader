@@ -1,240 +1,132 @@
-# import tkinter as tk
-# from tkinter import ttk, messagebox
-# from backend.downloader import VideoDownloader
-# from backend.threading_manager import ThreadingManager
-
-# class VideoDownloaderGUI:
-#     def __init__(self, root):
-#         self.root = root
-#         self.root.title("Video Downloader")
-#         self.root.geometry("600x400")
-
-#         # Initialize backend components
-#         self.downloader = VideoDownloader()
-#         self.thread_manager = ThreadingManager()
-
-#         # Store download sessions
-#         self.download_sessions = []
-
-#         # Create main frame
-#         self.main_frame = ttk.Frame(self.root, padding="10")
-#         self.main_frame.pack(fill=tk.BOTH, expand=True)
-
-#         # Add the first download session block
-#         self.add_download_block()
-
-#     def add_download_block(self):
-#         """Adds a new download block to the GUI."""
-#         session_frame = ttk.Frame(self.main_frame, padding="5", relief=tk.GROOVE)
-#         session_frame.pack(fill=tk.X, pady=5)
-
-#         # URL input
-#         ttk.Label(session_frame, text="YouTube URL:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
-#         url_entry = ttk.Entry(session_frame, width=40)
-#         url_entry.grid(row=0, column=1, padx=5, pady=5)
-
-#         # Start and End Time inputs
-#         ttk.Label(session_frame, text="Start Time (sec):").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
-#         start_time_entry = ttk.Entry(session_frame, width=10)
-#         start_time_entry.grid(row=1, column=1, padx=5, pady=5, sticky=tk.W)
-
-#         ttk.Label(session_frame, text="End Time (sec):").grid(row=1, column=2, padx=5, pady=5, sticky=tk.W)
-#         end_time_entry = ttk.Entry(session_frame, width=10)
-#         end_time_entry.grid(row=1, column=3, padx=5, pady=5, sticky=tk.W)
-
-#         # Download Button
-#         download_button = ttk.Button(session_frame, text="Download", command=lambda: self.start_download(url_entry, start_time_entry, end_time_entry))
-#         download_button.grid(row=2, column=0, columnspan=4, pady=10)
-
-#         # Progress Label
-#         progress_label = ttk.Label(session_frame, text="Progress: 0%", anchor=tk.W)
-#         progress_label.grid(row=3, column=0, columnspan=4, pady=5, sticky=tk.W)
-#         progress_label.grid_remove()  # Hide initially
-
-#         # Add and Cancel Buttons
-#         button_frame = ttk.Frame(session_frame)
-#         button_frame.grid(row=4, column=0, columnspan=4, pady=5, sticky=tk.E)
-
-#         add_button = ttk.Button(button_frame, text="Add", command=self.add_download_block)
-#         add_button.pack(side=tk.RIGHT, padx=5)
-
-#         cancel_button = ttk.Button(button_frame, text="Cancel", command=lambda: self.remove_download_block(session_frame))
-#         cancel_button.pack(side=tk.RIGHT, padx=5)
-
-#         # Store session components
-#         self.download_sessions.append({
-#             "frame": session_frame,
-#             "url_entry": url_entry,
-#             "start_time_entry": start_time_entry,
-#             "end_time_entry": end_time_entry,
-#             "progress_label": progress_label,
-#             "add_button": add_button
-#         })
-
-#         # Ensure only the last block has the Add button visible
-#         self.update_add_button_visibility()
-
-#     def remove_download_block(self, frame):
-#         """Removes a download block from the GUI."""
-#         for session in self.download_sessions:
-#             if session["frame"] == frame:
-#                 session["frame"].destroy()
-#                 self.download_sessions.remove(session)
-#                 break
-#         self.update_add_button_visibility()
-
-#     def update_add_button_visibility(self):
-#         """Ensures only the last download block has the Add button visible."""
-#         for session in self.download_sessions:
-#             session["add_button"].pack_forget()
-#         if self.download_sessions:
-#             self.download_sessions[-1]["add_button"].pack(side=tk.RIGHT, padx=5)
-
-#     def start_download(self, url_entry, start_time_entry, end_time_entry):
-#         """Starts a video download in a new thread."""
-#         url = url_entry.get()
-#         start_time = start_time_entry.get()
-#         end_time = end_time_entry.get()
-
-#         try:
-#             start_time = int(start_time) if start_time else 0
-#             end_time = int(end_time) if end_time else None
-#         except ValueError:
-#             messagebox.showerror("Error", "Start time and end time must be integers.")
-#             return
-
-#         if not url:
-#             messagebox.showerror("Error", "YouTube URL cannot be empty.")
-#             return
-
-#         # Update progress label visibility
-#         for session in self.download_sessions:
-#             if session["url_entry"] == url_entry:
-#                 session["progress_label"].grid()
-
-#         # Add download task to the threading manager
-#         self.thread_manager.add_task(self.download_task, args=(url, start_time, end_time, url_entry))
-#         self.thread_manager.start_downloads()
-        
-#     def download_task(self, url, start_time, end_time, url_entry):
-#         """Handles the video download and updates progress in the GUI."""
-#         try:
-#             # Progress callback function
-#             def update_progress(progress):
-#                 for session in self.download_sessions:
-#                     if session["url_entry"] == url_entry:
-#                         if progress == -1:  # Handle error progress
-#                             session["progress_label"].config(text="Error during download!")
-#                         else:
-#                             session["progress_label"].config(text=f"Progress: {progress:.2f}%")
-#                             #session["progress_bar"].set(progress)  # Assuming a progress bar exists
-
-
-#             # Call the downloader with progress updates
-#             path = self.downloader.download_video(url, start_time, end_time, update_progress)
-
-#             # Update the label once the download is complete
-#             for session in self.download_sessions:
-#                 if session["url_entry"] == url_entry:
-#                     session["progress_label"].config(text="Download complete: " + path)
-                
-#         except Exception as e:
-#             messagebox.showerror("Download Error", str(e))
-
-
- 
-    
-#     def update_progress(self, progress):
-#         if progress == -1:
-#             self.progress_label.setText("Error during download!")
-#         else:
-#             #self.progress_bar.setValue(progress)
-#             self.progress_label.setText(f"Progress: {progress:.2f}%")
-
-
-# if __name__ == "__main__":
-#     root = tk.Tk()
-#     app = VideoDownloaderGUI(root)
-#     root.mainloop()
-
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import timedelta
-from tkinter import ttk, messagebox
 from backend.downloader import VideoDownloader
 from backend.threading_manager import ThreadingManager
-
 
 class VideoDownloaderGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Video Downloader")
-        self.root.geometry("800x600")  # Increased window size
+        self.root.title("Modern Video Downloader")
+        self.root.geometry("800x600")
+        self.root.configure(bg="#f0f0f0")
+
+        # Configure styles
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+        self.style.configure("TFrame", background="#f0f0f0")
+        self.style.configure("TLabel", background="#f0f0f0", font=("Arial", 10))
+        self.style.configure("TButton", font=("Arial", 10, "bold"), padding=5)
+        self.style.map("TButton", background=[("active", "#4a4a4a")])
 
         # Initialize backend components
         self.downloader = VideoDownloader()
         self.thread_manager = ThreadingManager()
-
-        # Store download sessions
         self.download_sessions = []
 
-        # Create main frame
-        self.main_frame = ttk.Frame(self.root, padding="10")
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        # Create scrollable container
+        self.canvas = tk.Canvas(root, bg="#f0f0f0", highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(root, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
 
-        # Add the first download session block
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        # Bind mouse wheel scrolling
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        # Add initial download block
         self.add_download_block()
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def add_download_block(self):
         """Adds a new download block to the GUI."""
-        session_frame = ttk.Frame(self.main_frame, padding="5", relief=tk.GROOVE)
-        session_frame.pack(fill=tk.X, pady=5)
+        # Container to center the session_frame
+        container_frame = ttk.Frame(self.scrollable_frame)
+        container_frame.pack(fill=tk.X, pady=5)
 
-        # URL input
-        ttk.Label(session_frame, text="YouTube URL:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
-        url_entry = ttk.Entry(session_frame, width=40)
-        url_entry.grid(row=0, column=1, padx=5, pady=5)
+        # Main session frame
+        session_frame = ttk.Frame(container_frame, padding=10, style="TFrame")
+        session_frame.pack(anchor="center", pady=5, ipadx=10, ipady=5)
 
-        # Start and End Time inputs (modified for HH:MM:SS format)
-        ttk.Label(session_frame, text="Start Time (HH:MM:SS):").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
-        start_time_entry = ttk.Entry(session_frame, width=10)
-        start_time_entry.grid(row=1, column=1, padx=5, pady=5, sticky=tk.W)
+        # URL Section
+        url_frame = ttk.Frame(session_frame)
+        url_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(url_frame, text="YouTube URL:", font=("Arial", 10, "bold")).pack(side=tk.LEFT)
+        url_entry = ttk.Entry(url_frame, width=50, font=("Arial", 10))
+        url_entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
 
-        ttk.Label(session_frame, text="End Time (HH:MM:SS):").grid(row=1, column=2, padx=5, pady=5, sticky=tk.W)
-        end_time_entry = ttk.Entry(session_frame, width=10)
-        end_time_entry.grid(row=1, column=3, padx=5, pady=5, sticky=tk.W)
+        # Time Inputs
+        time_frame = ttk.Frame(session_frame)
+        time_frame.pack(fill=tk.X, pady=5)
 
-        # Download Button
-        download_button = ttk.Button(session_frame, text="Download", command=lambda: self.start_download(url_entry, start_time_entry, end_time_entry))
-        download_button.grid(row=2, column=0, columnspan=4, pady=10)
+        # Start Time with blue scheme
+        start_frame = ttk.Frame(time_frame)
+        start_frame.pack(side=tk.LEFT, padx=10)
+        tk.Label(start_frame, text="Start Time (HH:MM:SS):", 
+                bg="#e3f2fd", fg="#1976d2", font=("Arial", 9, "bold"), 
+                padx=5, pady=2).pack()
+        start_time_entry = ttk.Entry(start_frame, width=15, font=("Arial", 10))
+        start_time_entry.pack(pady=2)
 
-        # Progress Label
-        progress_label = ttk.Label(session_frame, text="Progress: 0%", anchor=tk.W)
-        progress_label.grid(row=3, column=0, columnspan=4, pady=5, sticky=tk.W)
-        progress_label.grid_remove()  # Hide initially
+        # End Time with pink scheme
+        end_frame = ttk.Frame(time_frame)
+        end_frame.pack(side=tk.LEFT, padx=10)
+        tk.Label(end_frame, text="End Time (HH:MM:SS):", 
+                bg="#fce4ec", fg="#d81b60", font=("Arial", 9, "bold"), 
+                padx=5, pady=2).pack()
+        end_time_entry = ttk.Entry(end_frame, width=15, font=("Arial", 10))
+        end_time_entry.pack(pady=2)
 
-        # Add and Cancel Buttons
+        # Progress Section
+        progress_frame = ttk.Frame(session_frame)
+        progress_frame.pack(fill=tk.X, pady=5)
+        progress_label = ttk.Label(progress_frame, text="Ready to download", font=("Arial", 9))
+        progress_label.pack(side=tk.LEFT)
+        
+        # Button Container
         button_frame = ttk.Frame(session_frame)
-        button_frame.grid(row=4, column=0, columnspan=4, pady=5, sticky=tk.E)
+        button_frame.pack(fill=tk.X, pady=5)
+        
+        # Action Buttons
+        btn_style = {"style": "TButton", "width": 8}
+        download_btn = ttk.Button(button_frame, text="Download", 
+                                command=lambda: self.start_download(url_entry, start_time_entry, end_time_entry),
+                                **btn_style)
+        download_btn.pack(side=tk.LEFT, padx=5)
 
-        add_button = ttk.Button(button_frame, text="Add", command=self.add_download_block)
-        add_button.pack(side=tk.RIGHT, padx=5)
+        cancel_btn = ttk.Button(button_frame, text="Remove", 
+                              command=lambda: self.remove_download_block(container_frame),
+                              **btn_style)
+        cancel_btn.pack(side=tk.RIGHT, padx=5)
 
-        cancel_button = ttk.Button(button_frame, text="Cancel", command=lambda: self.remove_download_block(session_frame))
-        cancel_button.pack(side=tk.RIGHT, padx=5)
+        add_btn = ttk.Button(button_frame, text="Add New", 
+                           command=self.add_download_block,
+                           **btn_style)
+        add_btn.pack(side=tk.RIGHT, padx=5)
 
         # Store session components
         self.download_sessions.append({
-            "frame": session_frame,
+            "frame": container_frame,
             "url_entry": url_entry,
             "start_time_entry": start_time_entry,
             "end_time_entry": end_time_entry,
             "progress_label": progress_label,
-            "add_button": add_button
+            "add_button": add_btn
         })
 
-        # Ensure only the last block has the Add button visible
         self.update_add_button_visibility()
 
     def remove_download_block(self, frame):
@@ -270,12 +162,12 @@ class VideoDownloaderGUI:
             messagebox.showerror("Error", "YouTube URL cannot be empty.")
             return
 
-        # Update progress label visibility
+        # Update progress label
         for session in self.download_sessions:
             if session["url_entry"] == url_entry:
-                session["progress_label"].grid()
+                session["progress_label"].config(text="Starting download...")
 
-        # Add download task to the threading manager
+        # Add download task to threading manager
         self.thread_manager.add_task(self.download_task, args=(url, start_time, end_time, url_entry))
         self.thread_manager.start_downloads()
 
@@ -297,23 +189,25 @@ class VideoDownloaderGUI:
     def download_task(self, url, start_time, end_time, url_entry):
         """Handles the video download and updates progress in the GUI."""
         try:
-            # Progress callback function
             def update_progress(progress):
                 for session in self.download_sessions:
                     if session["url_entry"] == url_entry:
-                        if progress == -1:  # Handle error progress
-                            session["progress_label"].config(text="Error during download!")
+                        if progress == -1:
+                            session["progress_label"].config(text="Error during download!", foreground="red")
                         else:
-                            session["progress_label"].config(text=f"Progress: {progress:.2f}%")
-                            #session["progress_bar"].set(progress)  # Assuming a progress bar exists
+                            session["progress_label"].config(
+                                text=f"Downloading... {progress:.2f}%",
+                                foreground="#2e7d32"
+                            )
 
-            # Call the downloader with progress updates
             path = self.downloader.download_video(url, start_time, end_time, update_progress)
 
-            # Update the label once the download is complete
             for session in self.download_sessions:
                 if session["url_entry"] == url_entry:
-                    session["progress_label"].config(text="Download complete: " + path)
+                    session["progress_label"].config(
+                        text=f"Download complete: {path}",
+                        foreground="#2e7d32"
+                    )
                 
         except Exception as e:
             messagebox.showerror("Download Error", str(e))
@@ -322,4 +216,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = VideoDownloaderGUI(root)
     root.mainloop()
-

@@ -101,7 +101,7 @@ class VideoDownloaderGUI:
         button_frame.pack(fill=tk.X, pady=5)
         
         # Action Buttons
-        btn_style = {"style": "TButton", "width": 8}
+        btn_style = {"style": "TButton", "width": 11}
         download_btn = ttk.Button(button_frame, text="Download", 
                                 command=lambda: self.start_download(url_entry, start_time_entry, end_time_entry),
                                 **btn_style)

@@ -1,16 +1,5 @@
  
- 
-import os
-import subprocess
-from yt_dlp import YoutubeDL
-import re
-import psutil
-import time
 
-class VideoDownloader:
-    def __init__(self):
-        self.download_folder = os.path.join(os.getcwd(), "downloads")
-        os.makedirs(self.download_folder, exist_ok=True)
 
 
     # def download_video(self, url, start_time=0, end_time=None, update_progress_callback=None):
@@ -1569,7 +1558,18 @@ class VideoDownloader:
 #             raise RuntimeError(f"Fallback method failed: {e}")
 
 # #######################################################################################
+ 
+import os
+import subprocess
+from yt_dlp import YoutubeDL
+import re
+import psutil
+import time
 
+class VideoDownloader:
+    def __init__(self):
+        self.download_folder = os.path.join(os.getcwd(), "downloads")
+        os.makedirs(self.download_folder, exist_ok=True)
     def _timestamp_to_sec(self, timestamp):
         """Convert timestamp string (HH:MM:SS, MM:SS, or SS) to seconds"""
         try:
@@ -1630,14 +1630,26 @@ class VideoDownloader:
                 self.check_ffmpeg_codecs(ffmpeg_path)
 
                 # Get video info with extended format handling
+                # ydl_opts = {
+                #     "quiet": True,
+                #     "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
+                #     "noplaylist": True,
+                #     "http_headers": {"User-Agent": "Mozilla/5.0"},
+                #     "ffmpeg_location": ffmpeg_path,
+                # }
                 ydl_opts = {
                     "quiet": True,
                     "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
                     "noplaylist": True,
-                    "http_headers": {"User-Agent": "Mozilla/5.0"},
+                    "http_headers": {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        "Referer": "https://www.youtube.com/",
+                        "Cookie": "YOUR_NEW_COOKIES_HERE22"
+                    },
                     "ffmpeg_location": ffmpeg_path,
                 }
                 
+
                 with YoutubeDL(ydl_opts) as ydl:
                     video_info = ydl.extract_info(url, download=False)
                 
@@ -1665,8 +1677,22 @@ class VideoDownloader:
                 safe_duration = clip_duration + 2  # Extra duration buffer
 
                 # FFmpeg command with broader compatibility
-                output_path = os.path.join(self.download_folder, 
-                                            f"{re.sub(r'[\\/*?:\"<>|]', '_', video_info['title'])}.mp4")
+                # output_path = os.path.join(self.download_folder, 
+                #                             f"{re.sub(r'[^\w\s-]', '_', video_info['title'])}.mp4")
+
+
+                #this is to not overwrite if there is exsisting video 
+                # FFmpeg command with broader compatibility
+                base_filename = re.sub(r'[^\w\s-]', '_', video_info['title'])
+                output_path = os.path.join(self.download_folder, f"{base_filename}.mp4")
+
+                # Check for duplicates and modify filename if needed
+                counter = 1
+                while os.path.exists(output_path):
+                    output_path = os.path.join(self.download_folder, f"{base_filename}_{counter}.mp4")
+                    counter += 1
+
+
                 
                 # ffmpeg_cmd = [
                 #     ffmpeg_path,
